@@ -1,7 +1,8 @@
-use std::fs;
 use std::env;
+use std::fs;
 
 mod day01;
+mod day02;
 
 fn load_input(day: i32) -> Result<String, std::io::Error> {
     let file_path = format!("input/day{:02}.txt", day);
@@ -22,11 +23,11 @@ fn main() {
         Ok(num) => {
             println!("Day {} does not exist", num);
             return;
-        },
+        }
         Err(_) => {
             println!("Invalid argument: {}", args[1]);
             return;
-        },
+        }
     };
 
     // Load the input file of the given day
@@ -35,12 +36,13 @@ fn main() {
         Err(e) => {
             println!("Error reading input file: {}", e);
             return;
-        },
+        }
     };
-        
+
     // Solve the given day
     match day {
-        1  => day01::solve(input),
+        1 => day01::solve(input),
+        2 => day02::solve(input),
         _ => println!("Day {} not implemented", day),
     }
 }
