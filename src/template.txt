@@ -1,3 +1,5 @@
+// https://adventofcode.com/2023/X
+
 pub fn solve(input: String) {
     println!("Day X solutions: ");
     solve_part_1(&input);
