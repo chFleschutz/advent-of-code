@@ -31,9 +31,23 @@ pub fn solve_part_1(input: &String) {
 }
 
 pub fn solve_part_2(input: &String) {
-    
+    let mut sum = 0;
 
-    println!("\t Part 2: {}", input.len());
+    for line in input.lines() {
+        let game = parse_game(line);
+        let mut min_set = Set { red: 0, green: 0, blue: 0};
+        
+        for set in &game.sets {
+            min_set.red = std::cmp::max(min_set.red, set.red);
+            min_set.green = std::cmp::max(min_set.green, set.green);
+            min_set.blue = std::cmp::max(min_set.blue, set.blue);
+        }
+
+        let power = min_set.red * min_set.green * min_set.blue;
+        sum += power;
+    }
+
+    println!("\t Part 2: {}", sum);
 }
 
 
