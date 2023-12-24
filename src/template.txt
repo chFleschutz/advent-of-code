@@ -1,4 +1,4 @@
-// https://adventofcode.com/2023/X
+// https://adventofcode.com/2023/day/X
 
 pub fn solve(input: String) {
     println!("Day X solutions: ");
