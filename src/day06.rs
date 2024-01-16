@@ -18,24 +18,26 @@ pub fn solve_part_1(input: &String) {
 }
 
 pub fn solve_part_2(input: &String) {
-    println!("\t Part 2: {}", input.len());
+    let race = parse_input_correctly(input);
+    let result = possible_wins(race);
+
+    println!("\t Part 2: {}", result);
 }
 
-#[derive(Debug)]
 struct Race {
-    time: i32,
-    distance: i32,
+    time: i64,
+    distance: i64,
 }
 
 fn parse_input(input: &str) -> Vec<Race> {
     let lines: Vec<&str> = input.lines().collect();
 
-    let times: Vec<i32> = lines[0]
+    let times: Vec<i64> = lines[0]
         .split_whitespace()
         .skip(1)
         .map(|s| s.parse().unwrap())
         .collect();
-    let distances: Vec<i32> = lines[1]
+    let distances: Vec<i64> = lines[1]
         .split_whitespace()
         .skip(1)
         .map(|s| s.parse().unwrap())
@@ -48,7 +50,24 @@ fn parse_input(input: &str) -> Vec<Race> {
         .collect()
 }
 
-fn calc_distance(total_time: i32, hold_time: i32) -> i32 {
+fn parse_input_correctly(input: &str) -> Race {
+    let lines: Vec<&str> = input.lines().collect();
+
+    let parse_line = |line: &str| {
+        line.chars()
+            .filter(|c| c.is_digit(10))
+            .collect::<String>()
+            .parse::<i64>()
+            .map_err(|_| "Failed to parse integer")
+    };
+
+    Race {
+        time: parse_line(lines[0]).unwrap(),
+        distance: parse_line(lines[1]).unwrap(),
+    }
+}
+
+fn calc_distance(total_time: i64, hold_time: i64) -> i64 {
     hold_time * (total_time - hold_time)
 }
 
