@@ -9,7 +9,7 @@ pub fn solve(input: String) {
 }
 
 pub fn solve_part_1(input: &String) {
-    let mut hands = parse_input(input);
+    let mut hands = parse_input(input, char_to_card_classic);
     hands.sort();
 
     let mut winnings = 0;
@@ -21,11 +21,20 @@ pub fn solve_part_1(input: &String) {
 }
 
 pub fn solve_part_2(input: &String) {
-    println!("\t Part 2: {}", input.len());
+    let mut hands = parse_input(input, char_to_card_joker);
+    hands.sort();
+
+    let mut winnings = 0;
+    for (i, hand) in hands.iter().enumerate() {
+        winnings += hand.bid * (i as i32 + 1);
+    }
+
+    println!("\t Part 2: {}", winnings);
 }
 
-#[derive(Debug, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Hash)]
 enum Card {
+    Joker,
     Two,
     Three,
     Four,
@@ -82,7 +91,7 @@ impl PartialOrd for Hand {
     }
 }
 
-fn char_to_card(c: char) -> Card {
+fn char_to_card_classic(c: char) -> Card {
     match c {
         '2' => Card::Two,
         '3' => Card::Three,
@@ -101,46 +110,97 @@ fn char_to_card(c: char) -> Card {
     }
 }
 
-fn hand_strength(cards: &str) -> HandType {
+fn char_to_card_joker(c: char) -> Card {
+    match c {
+        'J' => Card::Joker,
+        '2' => Card::Two,
+        '3' => Card::Three,
+        '4' => Card::Four,
+        '5' => Card::Five,
+        '6' => Card::Six,
+        '7' => Card::Seven,
+        '8' => Card::Eight,
+        '9' => Card::Nine,
+        'T' => Card::Ten,
+        'Q' => Card::Queen,
+        'K' => Card::King,
+        'A' => Card::Ace,
+        _ => panic!("Invalid card: {}", c),
+    }
+}
+
+fn hand_strength(cards: &Vec<Card>) -> HandType {
     let mut card_counts = HashMap::new();
-    for card in cards.chars() {
+    let mut joker_count = 0;
+
+    for card in cards {
         *card_counts.entry(card).or_insert(0) += 1;
+
+        if card == &Card::Joker {
+            joker_count += 1;
+        }
     }
 
     match card_counts.len() {
         1 => HandType::FiveOfAKind,
         2 => {
-            if card_counts.values().any(|&x| x == 4) {
-                HandType::FourOfAKind
+            if joker_count >= 1 {
+                HandType::FiveOfAKind
             } else {
-                HandType::FullHouse
+                if card_counts.values().any(|&x| x == 4) {
+                    HandType::FourOfAKind
+                } else {
+                    HandType::FullHouse
+                }
             }
         }
         3 => {
             if card_counts.values().any(|&x| x == 3) {
-                HandType::ThreeOfAKind
+                match joker_count {
+                    1 => HandType::FourOfAKind,
+                    2 => HandType::FiveOfAKind,
+                    3 => HandType::FourOfAKind,
+                    _ => HandType::ThreeOfAKind,
+                }
             } else {
-                HandType::TwoPairs
+                match joker_count {
+                    1 => HandType::FullHouse,
+                    2 => HandType::FourOfAKind,
+                    _ => HandType::TwoPairs,
+                }
             }
         }
-        4 => HandType::OnePair,
-        _ => HandType::HighCard,
+        4 => {
+            match joker_count {
+                1 => HandType::ThreeOfAKind,
+                2 => HandType::ThreeOfAKind,
+                _ => HandType::OnePair,
+            }
+        }
+        _ => {
+            match joker_count {
+                1 => HandType::OnePair,
+                _ => HandType::HighCard,
+            }
+        }
     }
 }
 
-fn create_hand(cards: &str, bid: &str) -> Hand {
+fn create_hand(cards: &str, bid: &str, parse_func: fn(char) -> Card) -> Hand {
+    let card_vec = cards.chars().map(parse_func).collect();
+    let hand_strength = hand_strength(&card_vec);
     Hand {
-        cards: cards.chars().map(char_to_card).collect(),
-        strength: hand_strength(cards),
+        cards: card_vec,
+        strength: hand_strength,
         bid: bid.parse::<i32>().unwrap(),
     }
 }
 
-fn parse_input(input: &String) -> Vec<Hand> {
+fn parse_input(input: &String, parse_func: fn(char) -> Card) -> Vec<Hand> {
     let mut hands = Vec::new();
     for line in input.lines() {
         let parts: Vec<&str> = line.split(' ').collect();
-        hands.push(create_hand(parts[0], parts[1]));
+        hands.push(create_hand(parts[0], parts[1], parse_func));
     }
     hands
 }
