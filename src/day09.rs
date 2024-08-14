@@ -18,8 +18,14 @@ pub fn solve_part_1(input: &String) {
 }
 
 pub fn solve_part_2(input: &String) {
- 
-    println!("\t Part 2: {}", input.len());
+    let value_histories = parse_input(input);
+
+    let mut result = 0;
+    for value_history in value_histories.iter() {
+        result += predict_previous_value(value_history);
+    }
+
+    println!("\t Part 2: {}", result);
 }
 
 fn parse_input(input: &String) -> Vec<Vec<i32>> {
@@ -76,5 +82,18 @@ fn predict_next_value(value_history: &Vec<i32>) -> i32 {
     for derivative in derivatives.iter() {
         predicted_value += derivative.last().unwrap();
     }
+    predicted_value
+}
+
+fn predict_previous_value(value_history: &Vec<i32>) -> i32 {
+
+    let derivatives = calc_all_derivatives(value_history);
+
+    // Calculate the previous value
+    let mut predicted_value = 0;
+    for derivative in derivatives.iter().rev() {
+        predicted_value = derivative.first().unwrap() - predicted_value;
+    }
+
     predicted_value
 }
