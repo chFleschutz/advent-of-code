@@ -10,6 +10,7 @@ mod day06;
 mod day07;
 mod day08;
 mod day09;
+mod day10;
 
 fn load_input(day: i32) -> Result<String, std::io::Error> {
     let file_path = format!("input/day{:02}.txt", day);
@@ -57,6 +58,7 @@ fn main() {
         7 => day07::solve(input),
         8 => day08::solve(input),
         9 => day09::solve(input),
+        10 => day10::solve(input),
         _ => println!("Day {} not implemented", day),
     }
 }
